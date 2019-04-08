@@ -17,12 +17,6 @@ namespace ConvertZZ.Moudle
         public static string Convert(string origin, int ToChinese, int VocabularyCorrection = -1)
         {
             if (String.IsNullOrWhiteSpace(origin)) return origin;
-            if (!App.DicLoaded)
-            {
-                System.Threading.SpinWait.SpinUntil(() => App.DicLoaded, 10000);
-                if (!App.DicLoaded)
-                    throw new Exception("詞彙修正的Dictionary載入失敗");
-            }
             switch (ToChinese)
             {
                 case 1:

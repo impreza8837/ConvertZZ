@@ -17,24 +17,28 @@ namespace ConvertZZ
     public partial class App : Application
     {
         public static System.Windows.Forms.NotifyIcon nIcon = new System.Windows.Forms.NotifyIcon();
-        public static bool DicLoaded { get; set; } = false;
         public App()
         {
-            
+
         }
 
         public static ChineseConverter ChineseConverter { get; set; } = new ChineseConverter();
-
-        private void Application_Startup(object sender, StartupEventArgs e)
+        bool DictionaryLoaded = false;
+        private async Task LoadDictionary()
+        {
+            if (!DictionaryLoaded)
+            {
+                var databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dictionary.db");
+                await ChineseConverter.LoadDatabase(databasePath);
+                ChineseConverter.ReloadFastReplaceDic();
+                DictionaryLoaded = true;
+            }
+        }
+        private async void Application_Startup(object sender, StartupEventArgs e)
         {
             App.Reload(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConvertZZ.json"));
-            Task.Run(() =>
-            {
-                foreach (string p in System.IO.Directory.GetFiles(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dictionary")))
-                    ChineseConverter.Load(p);
-                ChineseConverter.ReloadFastReplaceDic();
-                DicLoaded = true;
-            });
+            if (e.Args.Length == 0)
+                await LoadDictionary();
 
             ShutdownMode = ShutdownMode.OnMainWindowClose;
             if (e.Args.Length > 0)
@@ -94,19 +98,22 @@ namespace ConvertZZ
                             ToChinese = 0;
                             break;
                         case "/d:t":
+                            await LoadDictionary();
                             VocabularyCorrection = 1;
                             break;
                         case "/d:f":
                             VocabularyCorrection = 0;
                             break;
                         case "/d:s":
+                            if(App.Settings.VocabularyCorrection)
+                                await LoadDictionary();
                             VocabularyCorrection = -1;
                             break;
                         default:
                             if (path1 == null)
                             {
                                 path1 = e.Args[i];
-                                Regex_path1 = new Regex(Regex.Replace(path1.Replace("*", "(.*?)"),"[\\/]","[\\\\/]") + "$");
+                                Regex_path1 = new Regex(Regex.Replace(path1.Replace("*", "(.*?)"), "[\\/]", "[\\\\/]") + "$");
                             }
                             else
                             {
@@ -196,7 +203,7 @@ namespace ConvertZZ
                     else
                     {
                         var m1 = Regex_path1.Match(f);
-                        if(m1.Success)
+                        if (m1.Success)
                         {
                             if (path2.Contains("*"))
                             {
@@ -243,17 +250,17 @@ namespace ConvertZZ
                 nIcon.Visible = true;
                 if (Settings.CheckVersion)
                 {
-                    Task.Run(() =>
-                    {
-                        var versionReport = UpdateChecker.ChecktVersion();
-                        if (versionReport != null && versionReport.HaveNew)
-                        {
-                            if (MessageBox.Show(String.Format("發現新版本{0}(目前版本：{1})\r\n前往官網下載更新？", versionReport.Newst.ToString(), versionReport.Current.ToString()), "發現更新", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                            {
-                                Process.Start("https://github.com/flier268/ConvertZZ/releases");
-                            }
-                        }
-                    });
+                    await Task.Run(() =>
+                     {
+                         var versionReport = UpdateChecker.ChecktVersion();
+                         if (versionReport != null && versionReport.HaveNew)
+                         {
+                             if (MessageBox.Show(String.Format("發現新版本{0}(目前版本：{1})\r\n前往官網下載更新？", versionReport.Newst.ToString(), versionReport.Current.ToString()), "發現更新", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                             {
+                                 Process.Start("https://github.com/flier268/ConvertZZ/releases");
+                             }
+                         }
+                     });
                 }
                 MainWindow window = new MainWindow();
                 MainWindow = window;

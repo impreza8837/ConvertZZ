@@ -1,9 +1,11 @@
-﻿using System;
+﻿using SQLite;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using static ConvertZZ.FastReplace;
 
 namespace ConvertZZ
@@ -65,92 +67,41 @@ namespace ConvertZZ
             _logs.Clear();
             _hasError = false;
         }
-        public void Load(string fileName)
-        {
-            using (var reader = new StreamReader(fileName, Encoding.UTF8))
-            {
-                string line = reader.ReadLine();
-                while (line != null)
-                {
-                    this.Add(line);
-                    line = reader.ReadLine();
-                }
-            }
 
+        public async Task LoadDatabase(string databasePath)
+        {
+            var db = new SQLiteAsyncConnection(databasePath);
+            await db.CreateTableAsync<TranslateDictionary>();
+            var list = await db.Table<TranslateDictionary>().OrderBy(x => x.SimplifiedChinese_Priority).ThenByDescending(x => x.SimplifiedChinese_Length).ToListAsync();
+            list.ForEach(x => {
+                if (!_dictionary.ContainsKey(x.SimplifiedChinese))
+                    _dictionary.Add(x.SimplifiedChinese, x.TraditionalChinese);
+            });
+            list.Sort((x, y) => { int a = -x.TraditionalChinese_Priority.CompareTo(y.TraditionalChinese_Priority); if (a == 0) return -x.TraditionalChinese_Length.CompareTo(y.TraditionalChinese_Length); else return a; });
+            list.ForEach(x => {
+                if (!_dictionaryRevert.ContainsKey(x.TraditionalChinese))
+                    _dictionaryRevert.Add(x.TraditionalChinese, x.SimplifiedChinese);
+            });
         }
 
-        public void Load(string[] fileNames)
+        public async void DictionaryToDatabase(string databasePath)
         {
-            foreach (string fname in fileNames)
-            {
-                Load(fname);
-            }
+            var db = new SQLiteAsyncConnection(databasePath);
+            await db.CreateTableAsync<TranslateDictionary>();
+            await db.CreateIndexAsync("TranslateDictionary", new string[] { "TraditionalChinese_Priority", "TraditionalChinese_Length" });
+            await db.CreateIndexAsync("TranslateDictionary", new string[] { "SimplifiedChinese_Priority", "SimplifiedChinese_Length" });
+            await db.RunInTransactionAsync((SQLiteConnection connection) => {
+                foreach (var v in _dictionary)
+                    connection.InsertOrReplace(new TranslateDictionary(v.Key, v.Value));
+            });
+            await db.CloseAsync();
         }
+
+
         public void ReloadFastReplaceDic()
         {
             FR = new FastReplace(_dictionary);
             FRRevert = new FastReplace(_dictionaryRevert);
-        }
-
-        private void Add(string sourceWord, string targetWord)
-        {
-            var source = sourceWord.Split(' ');
-            var target = targetWord.Split(' ');
-            for (int i = 0; i < source.Length; i++)
-            {
-                for (int j = 0; j < target.Length; j++)
-                {
-                    if (j == 0)
-                    {
-                        if (!String.IsNullOrWhiteSpace(source[i]))
-                        {
-                            if (_dictionary.ContainsKey(source[i]))
-                            {
-                                _hasError = true;
-                                _logs.AppendLine(String.Format("警告: '{0}={1}' 的來源字串重複定義, 故忽略此項。", source[i], target[j]));
-                            }
-                            else
-                                _dictionary.Add(source[i], target[j]);
-                        }
-                    }
-                    if (i == 0)
-                    {
-                        if (!String.IsNullOrWhiteSpace(target[j]))
-                        {
-                            if (_dictionaryRevert.ContainsKey(target[j]))
-                            {
-                                _hasError = true;
-                                _logs.AppendLine(String.Format("警告: '{0}={1}' 的來源字串重複定義, 故忽略此項。", target[j], source[i]));
-                            }
-                            else
-                                _dictionaryRevert.Add(target[j], source[i]);
-                        }
-                    }
-                }
-            }
-        }
-
-        public ChineseConverter Add(string mapping)
-        {
-            if (!String.IsNullOrWhiteSpace(mapping) && !mapping.StartsWith(";"))
-            {
-                Regex r = new Regex("(.*?),(.*)");
-                var m = r.Match(mapping);
-                if (m.Success)
-                {
-                    this.Add(m.Groups[1].ToString(), m.Groups[2].ToString().ToString());
-                }
-            }
-            return this;
-        }
-
-        public ChineseConverter Add(IDictionary<string, string> dict)
-        {
-            foreach (var key in dict.Keys)
-            {
-                Add(key, dict[key]);
-            }
-            return this;
         }
 
         /// <summary>
