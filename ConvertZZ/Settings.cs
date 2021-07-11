@@ -19,18 +19,22 @@ namespace ConvertZZ {
 
     public partial class App {
         static string _FilePath;
+
         public static Settings Settings { get; set; } = new Settings();
+
         public static void Reload(string FilePath) {
             _FilePath = FilePath;
             if (File.Exists(FilePath)) {
                 using (StreamReader streamReader = new StreamReader(FilePath, Encoding.UTF8)) {
                     var temp = Settings.FromJson(streamReader.ReadToEnd());
-                    if (!temp.FileConvert.TypeFilter.Contains("<"))
+                    if (!temp.FileConvert.TypeFilter.Contains("<")) {
                         temp.FileConvert.TypeFilter = new Settings().FileConvert.TypeFilter;
+                    }
                     Settings = temp;
                 }
             }
         }
+
         public static void Save() {
             using (StreamWriter sw = new StreamWriter(_FilePath, false, Encoding.UTF8)) {
                 sw.Write(Settings.ToJson());
@@ -38,7 +42,6 @@ namespace ConvertZZ {
             }
         }
     }
-
 
     public partial class Settings {
         public Settings() {
@@ -56,6 +59,7 @@ namespace ConvertZZ {
             Engine = Enum_Engine.Local;
             Fanhuaji_Setting = new Fanhuaji_Config();
         }
+
         /// <summary>
         /// 上次關閉時的X座標
         /// </summary>
@@ -63,6 +67,7 @@ namespace ConvertZZ {
         public double PositionX {
             get; set;
         }
+
         /// <summary>
         /// 上次關閉時的Y座標
         /// </summary>
@@ -70,6 +75,7 @@ namespace ConvertZZ {
         public double PositionY {
             get; set;
         }
+
         /// <summary>
         /// 試圖自動辨識編碼
         /// </summary>
@@ -77,6 +83,7 @@ namespace ConvertZZ {
         public bool RecognitionEncoding {
             get; set;
         }
+
         /// <summary>
         /// 轉換完成後做出提示
         /// </summary>
@@ -84,6 +91,7 @@ namespace ConvertZZ {
         public bool Prompt {
             get; set;
         }
+
         /// <summary>
         /// 預覽的最大長度(kb)
         /// </summary>
@@ -91,6 +99,7 @@ namespace ConvertZZ {
         public int MaxLengthPreview {
             get; set;
         }
+
         /// <summary>
         /// 詞彙修正
         /// </summary>
@@ -98,6 +107,7 @@ namespace ConvertZZ {
         public bool VocabularyCorrection {
             get; set;
         }
+
         /// <summary>
         /// 詞彙修正引擎
         /// </summary>
@@ -105,6 +115,7 @@ namespace ConvertZZ {
         public Enum_Engine Engine {
             get; set;
         }
+
         /// <summary>
         /// 啟用懸浮球
         /// </summary>
@@ -112,6 +123,7 @@ namespace ConvertZZ {
         public bool AssistiveTouch {
             get; set;
         }
+
         /// <summary>
         /// 快速動作設定(輔助鍵+點擊)
         /// </summary>
@@ -119,6 +131,7 @@ namespace ConvertZZ {
         public QuickStart QuickStart {
             get; set;
         }
+
         /// <summary>
         /// 快捷鍵
         /// </summary>
@@ -126,6 +139,7 @@ namespace ConvertZZ {
         public HotKey HotKey {
             get; set;
         }
+
         /// <summary>
         /// 檔案轉換
         /// </summary>
@@ -133,6 +147,7 @@ namespace ConvertZZ {
         public FileConvert FileConvert {
             get; set;
         }
+
         /// <summary>
         /// 繁化姬設定檔
         /// </summary>
@@ -140,6 +155,7 @@ namespace ConvertZZ {
         public Fanhuaji_Config Fanhuaji_Setting {
             get; set;
         }
+
         /// <summary>
         /// 啟動時檢查更新
         /// </summary>
@@ -156,6 +172,7 @@ namespace ConvertZZ {
             TypeFilter = "<常用文字檔案|*.txt;*.log;*.ini;*.inf;*.bat;*.cmd;*.srt;*.ass;*.lang>/<常用網頁文件|*.htm;*.html;*.php;*.asp;*.css;*.js>/<音頻文件|*.mp3>";
             FixLabel = ".htm|.html|.shtm|.shtml|.asp|.apsx|.php";
         }
+
         /// <summary>
         /// 預設路徑
         /// </summary>
@@ -163,6 +180,7 @@ namespace ConvertZZ {
         public string DefaultPath {
             get; set;
         }
+
         /// <summary>
         /// 類型篩選器
         /// </summary>
@@ -170,6 +188,7 @@ namespace ConvertZZ {
         public string TypeFilter {
             get; set;
         }
+
         /// <summary>
         /// 修正檔案內文的編碼標籤
         /// </summary>
@@ -177,6 +196,7 @@ namespace ConvertZZ {
         public string FixLabel {
             get; set;
         }
+
         /// <summary>
         /// 加入BOM到Unicode檔頭
         /// </summary>
@@ -191,14 +211,18 @@ namespace ConvertZZ {
         /// <returns></returns>
         public List<string> GetFilterList(bool AddFixedItem = true) {
             List<string> filter = new List<string>();
-            if (AddFixedItem)
+            if (AddFixedItem) {
                 filter.Add("任意檔案(*.*)|*.*");
+            }
+
             System.Text.RegularExpressions.Regex r_filter = new System.Text.RegularExpressions.Regex("<(.*?)>");
             TypeFilter.Split('/').ToList().ForEach(x => {
                 filter.Add(r_filter.Match(x).Groups[1].Value);
             });
+
             return filter;
         }
+
         /// <summary>
         /// 傳回(.*?)|(.*?)
         /// </summary>
@@ -208,6 +232,7 @@ namespace ConvertZZ {
             var r = System.Text.RegularExpressions.Regex.Match(Filter, @"(.*?)\|(.*?)$");
             return new string[] { r.Groups[1].Value, r.Groups[2].Value };
         }
+
         /// <summary>
         /// 傳回用';'分割的List
         /// </summary>
@@ -216,6 +241,7 @@ namespace ConvertZZ {
         public List<string> GetExtentionArray(string str) {
             return SplitFilterString(str)[1].Split(';').ToList();
         }
+
         /// <summary>
         /// 檢查filename是否符合正則表達式extension
         /// </summary>
@@ -233,22 +259,27 @@ namespace ConvertZZ {
                 var _t = App.Settings.FileConvert.SplitFilterString(x);
                 temp.Add(new Window_KeyValueEditor.KeyValueItem() { Key = _t[0], Value = _t[1] });
             });
+
             Window_KeyValueEditor window_KeyValueEditor = new Window_KeyValueEditor(
                 new Window_KeyValueEditor.Button() { Content = "Save" },
                 new Window_KeyValueEditor.Button() { Content = "Close" },
                 temp
                 );
+
             window_KeyValueEditor.Button2_Action = new System.Action(() => {
                 window_KeyValueEditor.Close();
             });
+
             window_KeyValueEditor.Button1_Action = new System.Action(() => {
                 StringBuilder sb = new StringBuilder();
                 window_KeyValueEditor.KeyValueItems.ToList().ForEach(x => {
-                    if (sb.Length > 0)
+                    if (sb.Length > 0) {
                         sb.Append("/");
+                    }
                     sb.AppendFormat("<{0}|{1}>", x.Key, x.Value);
                 });
                 TypeFilter = sb.ToString();
+
                 App.Save();
                 window_KeyValueEditor.Close();
             });
@@ -265,6 +296,7 @@ namespace ConvertZZ {
             Feature3 = new Feature() { Action = "a3", Enable = false, Key = "None", Modift = "None" };
             Feature4 = new Feature() { Action = "a4", Enable = false, Key = "None", Modift = "None" };
         }
+
         [JsonProperty("AutoCopy")]
         public bool AutoCopy {
             get; set;
@@ -303,6 +335,7 @@ namespace ConvertZZ {
             Key = "";
             Modift = "";
         }
+
         [JsonProperty("Action")]
         public string Action {
             get; set;
@@ -339,50 +372,62 @@ namespace ConvertZZ {
             RightDrop_Alt = "";
             RightDrop_Shift = "";
         }
+
         [JsonProperty("LeftClick_Ctrl")]
         public string LeftClick_Ctrl {
             get; set;
         }
+
         [JsonProperty("LeftClick_Alt")]
         public string LeftClick_Alt {
             get; set;
         }
+
         [JsonProperty("LeftClick_Shift")]
         public string LeftClick_Shift {
             get; set;
         }
+
         [JsonProperty("RightClick_Ctrl")]
         public string RightClick_Ctrl {
             get; set;
         }
+
         [JsonProperty("RightClick_Alt")]
         public string RightClick_Alt {
             get; set;
         }
+
         [JsonProperty("RightClick_Shift")]
         public string RightClick_Shift {
             get; set;
         }
+
         [JsonProperty("LeftDrop_Ctrl")]
         public string LeftDrop_Ctrl {
             get; set;
         }
+
         [JsonProperty("LeftDrop_Alt")]
         public string LeftDrop_Alt {
             get; set;
         }
+
         [JsonProperty("LeftDrop_Shift")]
         public string LeftDrop_Shift {
             get; set;
         }
+
         [JsonProperty("RightDrop_Ctrl")]
         public string RightDrop_Ctrl {
             get; set;
         }
+
         [JsonProperty("RightDrop_Alt")]
         public string RightDrop_Alt {
             get; set;
         }
+
         [JsonProperty("RightDrop_Shift")]
         public string RightDrop_Shift {
             get; set;
@@ -390,11 +435,11 @@ namespace ConvertZZ {
     }
 
     public partial class Settings {
-        public static Settings FromJson(string json) => JsonConvert.DeserializeObject<Settings>(json, ConvertZZ.Converter.Settings);
+        public static Settings FromJson(string json) => JsonConvert.DeserializeObject<Settings>(json, Converter.Settings);
     }
 
     public static class Serialize {
-        public static string ToJson(this Settings self) => JsonConvert.SerializeObject(self, Formatting.Indented, ConvertZZ.Converter.Settings);
+        public static string ToJson(this Settings self) => JsonConvert.SerializeObject(self, Formatting.Indented, Converter.Settings);
     }
 
     internal class Converter {
@@ -405,6 +450,7 @@ namespace ConvertZZ {
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
             },
         };
+
         public static readonly JsonSerializerSettings Config = new JsonSerializerSettings {
             MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
             DateParseHandling = DateParseHandling.None

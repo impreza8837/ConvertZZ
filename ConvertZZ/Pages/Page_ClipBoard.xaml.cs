@@ -43,7 +43,7 @@ namespace ConvertZZ.Pages {
         /// </summary>
         int ToChinese = 0;
         private async void Encoding_Selected(object sender, RoutedEventArgs e) {
-            RadioButton radiobutton = ((RadioButton)sender);
+            RadioButton radiobutton = (RadioButton)sender;
             switch (radiobutton.GroupName) {
                 case "origin":
                     encoding[0] = Encoding.GetEncoding(((string)radiobutton.Content).Trim());
@@ -76,7 +76,7 @@ namespace ConvertZZ.Pages {
                 Output = await ConvertHelper.ConvertAsync(ClipBoard, encoding, ToChinese);
             } catch (FanhuajiException val) {
                 FanhuajiException fe = val;
-                Window_MessageBoxEx.ShowDialog(((Exception)fe).Message, "繁化姬API", "確定");
+                Window_MessageBoxEx.ShowDialog(fe.Message, "繁化姬API", "確定");
             }
         }
 
@@ -85,7 +85,7 @@ namespace ConvertZZ.Pages {
         private void Page_Loaded(object sender, RoutedEventArgs e) {
             #region 註冊Hook並監聽剪貼簿            
             hWndSource = HwndSource.FromHwnd(hwnd);
-            hWndSource.AddHook(this.WinProc);   // start processing window messages 
+            hWndSource.AddHook(WinProc);   // start processing window messages 
             mNextClipBoardViewerHWnd = SetClipboardViewer(hWndSource.Handle);   // set this window as a viewer            
             #endregion
         }

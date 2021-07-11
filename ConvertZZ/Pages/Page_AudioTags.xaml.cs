@@ -26,8 +26,10 @@ namespace ConvertZZ.Pages {
             Combobox_Filter.SelectedIndex = 0;
         }
         public Page_AudioTags(Format format, string[] FileNames) : this(format) {
-            if (FileNames == null)
+            if (FileNames == null) {
                 return;
+            }
+
             ImportFileNames(FileNames);
             Combobox_Filter_SelectionChanged(Combobox_Filter, null);
         }
@@ -82,9 +84,9 @@ namespace ConvertZZ.Pages {
                     if (t2 != null) {
                         var TagList = GetAllStringProperties(t2);
                         var Dic = TagList.ToDictionary(x => x.TagName, x => {
-                            if (tfile.TagTypesOnDisk.HasFlag(TagLib.TagTypes.Id3v2))
+                            if (tfile.TagTypesOnDisk.HasFlag(TagLib.TagTypes.Id3v2)) {
                                 return StringToUnicode.TryToConvertLatin1ToUnicode(x.Value, encoding2[0]);
-                            else {
+                            } else {
                                 var _ = ID3v1_TagList.Where(y => y.TagName == x.TagName).FirstOrDefault();
                                 return _ != null ? _.Value_Preview : "";
                             }
@@ -95,23 +97,25 @@ namespace ConvertZZ.Pages {
                     }
                     tfile.Save();
                 } catch (TagLib.UnsupportedFormatException) { ErrorMessage = string.Format("轉換{0}時出現錯誤，該檔案並非音訊檔", _temp.Name); } catch (FanhuajiException val) {
-                    ErrorMessage = ((Exception)val).Message;
+                    ErrorMessage = val.Message;
                     break;
                 } catch { ErrorMessage = string.Format("轉換{0}時出現未知錯誤", _temp.Name); }
             }
             Mouse.OverrideCursor = null;
             stopwatch.Stop();
-            if (!string.IsNullOrEmpty(ErrorMessage))
+            if (!string.IsNullOrEmpty(ErrorMessage)) {
                 Window_MessageBoxEx.ShowDialog(ErrorMessage, "轉換過程中出現錯誤", "我知道了");
-            else if (App.Settings.Prompt) {
+            } else if (App.Settings.Prompt) {
                 new Toast(string.Format("轉換完成\r\n耗時：{0} ms", stopwatch.ElapsedMilliseconds)).Show();
             }
             ((Button)e.Source).IsEnabled = true;
             Listview_SelectionChanged(null, null);
         }
         private async void Preview(string path) {
-            if (!File.Exists(path))
+            if (!File.Exists(path)) {
                 return;
+            }
+
             try {
                 var tfile = TagLib.File.Create(path, TagLib.ReadStyle.None);
                 TagLib.Id3v1.Tag t = (TagLib.Id3v1.Tag)tfile.GetTag(TagLib.TagTypes.Id3v1);
@@ -132,9 +136,9 @@ namespace ConvertZZ.Pages {
 
                 TagList = GetAllStringProperties(t2);
                 Dic = TagList.ToDictionary(x => x.TagName, x => {
-                    if (tfile.TagTypesOnDisk.HasFlag(TagLib.TagTypes.Id3v2))
+                    if (tfile.TagTypesOnDisk.HasFlag(TagLib.TagTypes.Id3v2)) {
                         return StringToUnicode.TryToConvertLatin1ToUnicode(x.Value, encoding2[0]);
-                    else {
+                    } else {
                         var _ = ID3v1_TagList.Where(y => y.TagName == x.TagName).FirstOrDefault();
                         return _ != null ? _.Value_Preview : "";
                     }
@@ -201,7 +205,7 @@ namespace ConvertZZ.Pages {
         }
         private void Listview_SelectionChanged(object sender, SelectionChangedEventArgs e) {
             if (listview.SelectedItem != null) {
-                FileList_Line line = ((FileList_Line)listview.SelectedItem);
+                FileList_Line line = (FileList_Line)listview.SelectedItem;
                 string path = Path.Combine(line.Path, line.Name);
                 if (File.Exists(path)) {
                     LastPath = path;
@@ -222,12 +226,12 @@ namespace ConvertZZ.Pages {
         private void ImportFileNames(string[] FileNames) {
             string ParentPath = Path.GetDirectoryName(FileNames.First());
             foreach (string str in FileNames) {
-                if ((Path.GetFileNameWithoutExtension(str) == "　" || Directory.Exists(str)) && System.IO.Directory.Exists(System.IO.Path.GetDirectoryName(str))) {
-                    string folderpath = System.IO.Path.GetDirectoryName(str);
+                if ((Path.GetFileNameWithoutExtension(str) == "　" || Directory.Exists(str)) && Directory.Exists(Path.GetDirectoryName(str))) {
+                    string folderpath = Path.GetDirectoryName(str);
                     App.Settings.FileConvert.GetExtentionArray(Combobox_Filter.Text).ForEach(filter => {
-                        List<string> childFileList = System.IO.Directory.GetFiles(folderpath, filter.Trim(), AccordingToChild ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).Where(x => App.Settings.FileConvert.CheckExtension(x, filter)).ToList();
+                        List<string> childFileList = Directory.GetFiles(folderpath, filter.Trim(), AccordingToChild ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).Where(x => App.Settings.FileConvert.CheckExtension(x, filter)).ToList();
                         childFileList.ForEach(x => {
-                            FileListTemp.Add(new FileList_Line() { IsChecked = true, IsFile = true, Name = System.IO.Path.GetFileName(x), ParentPath = ParentPath, Path = Path.GetDirectoryName(x) });
+                            FileListTemp.Add(new FileList_Line() { IsChecked = true, IsFile = true, Name = Path.GetFileName(x), ParentPath = ParentPath, Path = Path.GetDirectoryName(x) });
                         });
                     });
                     FileListTemp = new ObservableCollection<FileList_Line>(FileListTemp.OrderBy(x => x.Name).Distinct().OrderBy(x => x.IsFile).OrderBy(x => x.Path));
@@ -244,7 +248,7 @@ namespace ConvertZZ.Pages {
             LastPath = "";
         }
         private void Encoding_Selected(object sender, RoutedEventArgs e) {
-            RadioButton radiobutton = ((RadioButton)sender);
+            RadioButton radiobutton = (RadioButton)sender;
             switch (radiobutton.GroupName) {
                 case "origin":
                     encoding[0] = Encoding.GetEncoding(((string)radiobutton.Content).Trim());
@@ -386,14 +390,16 @@ namespace ConvertZZ.Pages {
 
 
         private void ComboBox_ID3v2_Version_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-            if (Combobox_Encoding_ID3v2 == null)
+            if (Combobox_Encoding_ID3v2 == null) {
                 return;
+            }
+
             string[] Version3 = { "UTF-16", "UTF-16LE", "UTF-16BE" };
             string[] Version4 = { "UTF-8", "UTF-16", "UTF-16LE", "UTF-16BE" };
-            ComboBox comboBox = (sender as ComboBox);
-            if ((ComboBoxItem)comboBox.SelectedItem == null)
+            ComboBox comboBox = sender as ComboBox;
+            if ((ComboBoxItem)comboBox.SelectedItem == null) {
                 Combobox_Encoding_ID3v2.ItemsSource = Version3;
-            else {
+            } else {
                 switch (((ComboBoxItem)comboBox.SelectedItem).Content) {
                     case "2.3":
                         Combobox_Encoding_ID3v2.ItemsSource = Version3;
@@ -403,8 +409,9 @@ namespace ConvertZZ.Pages {
                         break;
                 }
             }
-            if (Combobox_Encoding_ID3v2.SelectedValue == null)
+            if (Combobox_Encoding_ID3v2.SelectedValue == null) {
                 Combobox_Encoding_ID3v2.SelectedItem = "UTF-16";
+            }
         }
         ObservableCollection<FileList_Line> FileListTemp = new ObservableCollection<FileList_Line>();
         private void Combobox_Filter_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -415,9 +422,11 @@ namespace ConvertZZ.Pages {
                 return;
             }
             App.Settings.FileConvert.GetExtentionArray((sender as ComboBox).SelectedValue.ToString()).ForEach(x => {
-                foreach (var t in FileListTemp)
-                    if (App.Settings.FileConvert.CheckExtension(t.Name, x))
+                foreach (var t in FileListTemp) {
+                    if (App.Settings.FileConvert.CheckExtension(t.Name, x)) {
                         temp.Add(t);
+                    }
+                }
             });
             FileList = new ObservableCollection<FileList_Line>(temp.Distinct());
         }

@@ -19,7 +19,7 @@ namespace ConvertZZ.Moudle {
         private async void Window_Loaded(object sender, RoutedEventArgs e) {
             DoubleAnimation daV = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromMilliseconds(1000)));
             await Task.Delay(time_ms);
-            BeginAnimation(UIElement.OpacityProperty, daV);
+            BeginAnimation(OpacityProperty, daV);
             await Task.Delay(1000);
             Close();
         }

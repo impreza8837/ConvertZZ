@@ -12,9 +12,9 @@ namespace ConvertZZ.Moudle {
         public Window_KeyValueEditor(Button button1, Button button2, ObservableCollection<KeyValueItem> keyValueItems) {
             InitializeComponent();
             DataContext = this;
-            this.KeyValueItems = keyValueItems;
-            this.button1_Content = button1.Content;
-            this.button2_Content = button2.Content;
+            KeyValueItems = keyValueItems;
+            button1_Content = button1.Content;
+            button2_Content = button2.Content;
             Button1_Action = button1.Action;
             Button2_Action = button2.Action;
         }
@@ -67,7 +67,7 @@ namespace ConvertZZ.Moudle {
 
         private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
             if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed) {
-                this.DragMove();
+                DragMove();
             }
         }
 

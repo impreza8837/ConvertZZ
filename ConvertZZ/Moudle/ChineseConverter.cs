@@ -88,14 +88,15 @@ namespace ConvertZZ {
         /// <returns></returns>
         public string Convert(string input, bool C2T) {
             //這個方法最快
-            if (C2T)
+            if (C2T) {
                 return FR.ReplaceAll(input);
-            else
+            } else {
                 return FRRevert.ReplaceAll(input);
+            }
             /* 第二快
             foreach (var temp in _dictionary)
             {
-                input = input.Replace(temp.Key, temp.Value);
+               input = input.Replace(temp.Key, temp.Value);
             }
             return input;*/
             /* 最慢

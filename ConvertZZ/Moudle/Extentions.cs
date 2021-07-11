@@ -7,6 +7,7 @@ namespace ConvertZZ.Moudle {
             if (collection == null) {
                 throw new ArgumentNullException("collection");
             }
+
             foreach (KeyValuePair<T1, T2> item in collection) {
                 if (Dic.ContainsKey(item.Key)) {
                     if (Replace) {
@@ -22,6 +23,7 @@ namespace ConvertZZ.Moudle {
             if (collection == null) {
                 throw new ArgumentNullException("collection");
             }
+
             foreach (KeyValuePair<T1, T2> item in collection) {
                 if (dic.ContainsKey(item.Key)) {
                     dic.Remove(item.Key);

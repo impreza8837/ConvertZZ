@@ -6,8 +6,9 @@ namespace ConvertZZ.Moudle {
         public static string TryToConvertLatin1ToUnicode(string str, Encoding encoding) {
             if (CalcRate(str.ToArray(), Latin1) > 0.2) {
                 return encoding.GetString(Encoding.GetEncoding("ISO-8859-1").GetBytes(str));
-            } else
+            } else {
                 return str;
+            }
         }
 
         private static double CalcRate(char[] Array, char[] Table) {

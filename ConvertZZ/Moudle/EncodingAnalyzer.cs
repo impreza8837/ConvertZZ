@@ -23,11 +23,16 @@ namespace ConvertZZ.Moudle {
             report[1] = AnalyzeBig5(GBK.GetBytes(String)).BadSmell;
             report[2] = AnalyzeGBK(BIG5.GetBytes(String)).BadSmell;
             report[3] = AnalyzeGBK(GBK.GetBytes(String)).BadSmell;
-            if (report.Sum() == 0)
+            if (report.Sum() == 0) {
                 return -1;
-            for (int i = 0; i < report.Length; i++)
-                if (report[i] == report.Min())
+            }
+
+            for (int i = 0; i < report.Length; i++) {
+                if (report[i] == report.Min()) {
                     return i;
+                }
+            }
+
             return 0;
         }
 
@@ -43,8 +48,10 @@ namespace ConvertZZ.Moudle {
             public float BadSmell {
                 get {
                     int total = Ascii + Symbol + Common + Rare + Unknow;
-                    if (total == 0)
+                    if (total == 0) {
                         return 0;
+                    }
+
                     return (float)(Rare + Unknow * 3) / total;
                 }
             }
@@ -57,22 +64,26 @@ namespace ConvertZZ.Moudle {
                 if (isDblBytes) {
                     if (b >= 0x40 && b <= 0x7e || b >= 0xa1 && b <= 0xfe) {
                         int c = dblByteHi * 0x100 + b;
-                        if (c >= 0xa140 && c <= 0xa3bf)
+                        if (c >= 0xa140 && c <= 0xa3bf) {
                             res.Symbol++; //符號
-                        else if (c >= 0xa440 && c <= 0xc67e)
+                        } else if (c >= 0xa440 && c <= 0xc67e) {
                             res.Common++; //常用字
-                        else if (c >= 0xc940 && c <= 0xf9d5)
+                        } else if (c >= 0xc940 && c <= 0xf9d5) {
                             res.Rare++; //次常用字
-                        else
+                        } else {
                             res.Unknow++; //無效字元
-                    } else
+                        }
+                    } else {
                         res.Unknow++;
+                    }
+
                     isDblBytes = false;
                 } else if (b >= 0x80 && b <= 0xfe) {
                     isDblBytes = true;
                     dblByteHi = b;
-                } else if (b < 0x80)
+                } else if (b < 0x80) {
                     res.Ascii++;
+                }
             }
             return res;
         }
@@ -83,22 +94,26 @@ namespace ConvertZZ.Moudle {
             foreach (byte b in data) {
                 if (isDblBytes) {
                     if (b >= 0xa1 && b <= 0xfe) {
-                        if (dblByteHi >= 0xa1 && dblByteHi <= 0xa9)
+                        if (dblByteHi >= 0xa1 && dblByteHi <= 0xa9) {
                             res.Symbol++; //符號
-                        else if (dblByteHi >= 0xb0 && dblByteHi <= 0xd7)
+                        } else if (dblByteHi >= 0xb0 && dblByteHi <= 0xd7) {
                             res.Common++; //一級漢字(常用字)
-                        else if (dblByteHi >= 0xd8 && dblByteHi <= 0xf7)
+                        } else if (dblByteHi >= 0xd8 && dblByteHi <= 0xf7) {
                             res.Rare++; //二級漢字(次常用字)
-                        else
+                        } else {
                             res.Unknow++; //無效字元
-                    } else
+                        }
+                    } else {
                         res.Unknow++; //無效字元
+                    }
+
                     isDblBytes = false;
                 } else if (b >= 0xa1 && b <= 0xf7) {
                     isDblBytes = true;
                     dblByteHi = b;
-                } else if (b < 0x80)
+                } else if (b < 0x80) {
                     res.Ascii++;
+                }
             }
             return res;
         }

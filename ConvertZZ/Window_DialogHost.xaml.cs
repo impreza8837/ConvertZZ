@@ -16,23 +16,31 @@ namespace ConvertZZ {
     /// </summary>
     public partial class Window_DialogHost : Window, INotifyPropertyChanged {
         Pages.Page_AudioTags.Format AudioFormat;
+
         Mode mode;
+
         string[] FileNames;
+
         public Window_DialogHost(Mode mode, string[] FileNames, Pages.Page_AudioTags.Format AudioFormat = Pages.Page_AudioTags.Format.APE) : this(mode, AudioFormat) {
             this.FileNames = FileNames;
         }
+
         public Window_DialogHost(Mode mode, Pages.Page_AudioTags.Format AudioFormat = Pages.Page_AudioTags.Format.APE) {
             this.AudioFormat = AudioFormat;
             this.mode = mode;
+
             DataContext = this;
+
             InitializeComponent();
         }
+
         private void UIElement_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e) {
             //until we had a StaysOpen glag to Drawer, this will help with scroll bars
             var dependencyObject = Mouse.Captured as DependencyObject;
             while (dependencyObject != null) {
-                if (dependencyObject is ScrollBar)
+                if (dependencyObject is ScrollBar) {
                     return;
+                }
                 dependencyObject = VisualTreeHelper.GetParent(dependencyObject);
             }
 
@@ -59,6 +67,8 @@ namespace ConvertZZ {
                 case "Item_Exit":
                     Close();
                     break;
+                default:
+                    break;
             }
         }
 
@@ -67,14 +77,19 @@ namespace ConvertZZ {
         }
 
         private void DragMove(object sender, MouseButtonEventArgs e) {
-            if (e.LeftButton == MouseButtonState.Pressed)
-                this.DragMove();
+            if (e.LeftButton == MouseButtonState.Pressed) {
+                DragMove();
+            }
         }
+
         const string Shortcut_File = "ConvertZZ(文件轉換)";
+
         const string Shortcut_Audio = "ConvertZZ(Audio標籤轉換)";
+
         private void Button_CreateShortCut(object sender, RoutedEventArgs e) {
             string ShortchuName = "";
             string arg = "";
+
             if (Frame_Report.Content.GetType() == typeof(Pages.Page_File)) {
                 ShortchuName = Shortcut_File;
                 arg = "/file";
@@ -82,11 +97,14 @@ namespace ConvertZZ {
                 ShortchuName = Shortcut_Audio;
                 arg = "/audio";
             }
-            if (Moudle.Window_MessageBoxEx.ShowDialog($"添加\"{ShortchuName}\"捷徑至傳送到", "建立捷徑", "是", "否") == Moudle.Window_MessageBoxEx.MessageBoxExResult.A) {
+
+            if (Window_MessageBoxEx.ShowDialog($"添加\"{ShortchuName}\"捷徑至傳送到", "建立捷徑", "是", "否") == Window_MessageBoxEx.MessageBoxExResult.A) {
                 string ShortcutPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SendTo), $"{ShortchuName}.lnk");
-                if (File.Exists(ShortcutPath))
+                if (File.Exists(ShortcutPath)) {
                     File.Delete(ShortcutPath);
-                Moudle.Shortcut.Create(ShortcutPath, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, arg, AppDomain.CurrentDomain.BaseDirectory, "簡繁轉換工具", "", "");
+                }
+
+                Shortcut.Create(ShortcutPath, System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName, arg, AppDomain.CurrentDomain.BaseDirectory, "簡繁轉換工具", "", "");
                 new Toast("捷徑已建立").Show();
                 CreateShortcutVisibility = Visibility.Hidden;
             }
@@ -97,7 +115,7 @@ namespace ConvertZZ {
         }
 
         private void Button_Close(object sender, RoutedEventArgs e) {
-            this.Close();
+            Close();
         }
 
         public Visibility CreateShortcutVisibility {
@@ -105,7 +123,5 @@ namespace ConvertZZ {
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-
     }
 }

@@ -18,7 +18,7 @@ namespace ConvertZZ {
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e) {
             if (e.LeftButton == MouseButtonState.Pressed) {
-                this.DragMove();
+                DragMove();
             }
         }
 
@@ -31,12 +31,14 @@ namespace ConvertZZ {
                 MessageBox.Show(this, "姓名與標題為必填");
                 return;
             }
+
             Button_Send.Content = "發送中...";
             Button_Send.IsEnabled = false;
             SendGoogleFormAsync(TextBox_Name.Text, TextBox_Email.Text, TextBox_Title.Text, Textbox_Content.Text);
             Button_Send.Content = "送出";
             Button_Send.IsEnabled = true;
         }
+
         private async void SendGoogleFormAsync(string Name, string Email, string Title, string Content) {
             await Task.Run(() => {
                 try {
@@ -48,14 +50,17 @@ namespace ConvertZZ {
                          { "entry.586000024", Title },
                          { "entry.1890682106", Content }
                      };
+
                     Uri uri = new Uri("https://docs.google.com/forms/d/e/1FAIpQLSfCOOFaY8vx-isqg6y3J2QXhF88VyVnpW2Cdw-opZZHPMECbg/formResponse");
                     byte[] response = client.UploadValues(uri, "POST", keyValue);
                     string result = Encoding.UTF8.GetString(response);
+
                     MessageBox.Show("感謝您的回報");
+
                     Action methodDelegate = delegate () {
                         Close();
                     };
-                    this.Dispatcher.BeginInvoke(methodDelegate);
+                    Dispatcher.BeginInvoke(methodDelegate);
                 } catch {
                     MessageBox.Show("回報單傳送失敗，請確認網路連線狀態");
                 }

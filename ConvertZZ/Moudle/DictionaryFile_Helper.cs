@@ -9,8 +9,10 @@ namespace ConvertZZ.Moudle {
     public class DictionaryFile_Helper {
         public static async Task<List<Line>> Load(string CSV_Filename) {
             var temp = new List<Line>();
-            if (!File.Exists(CSV_Filename))
+            if (!File.Exists(CSV_Filename)) {
                 throw new Exception($"File \"{CSV_Filename}\" not exist!");
+            }
+
             try {
                 using (FileStream fileStream = new FileStream(CSV_Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
                     using (StreamReader streamReader = new StreamReader(fileStream, Encoding.UTF8)) {
@@ -20,8 +22,9 @@ namespace ConvertZZ.Moudle {
                             var array_line = str.Split('\t').ToList();
                             if (array_line.Count == 6) {
                                 array_line.ForEach(x => {
-                                    if (x.StartsWith("\t"))
+                                    if (x.StartsWith("\t")) {
                                         x = x.Substring(1, x.Length - 2).Replace("\"\"", "\"");
+                                    }
                                 });
                                 temp.Add(new Line() { Enable = array_line[0] == "True" ? true : false, Type = array_line[1], SimplifiedChinese = array_line[2], SimplifiedChinese_Priority = int.Parse(array_line[3]), TraditionalChinese = array_line[4], TraditionalChinese_Priority = int.Parse(array_line[5]) });
                             }
@@ -40,12 +43,18 @@ namespace ConvertZZ.Moudle {
                     lines.ForEach(x => {
                         Line temp = x.Clone();
                         if (temp.SimplifiedChinese_Length + temp.TraditionalChinese_Length > 0) {
-                            if (temp.Type.Contains("\""))
+                            if (temp.Type.Contains("\"")) {
                                 temp.Type = $"\"{temp.Type.Replace("\"", "\"\"")}\"";
-                            if (temp.SimplifiedChinese.Contains("\""))
+                            }
+
+                            if (temp.SimplifiedChinese.Contains("\"")) {
                                 temp.SimplifiedChinese = $"\"{temp.SimplifiedChinese.Replace("\"", "\"\"")}\"";
-                            if (temp.TraditionalChinese.Contains("\""))
+                            }
+
+                            if (temp.TraditionalChinese.Contains("\"")) {
                                 temp.TraditionalChinese = $"\"{temp.TraditionalChinese.Replace("\"", "\"\"")}\"";
+                            }
+
                             streamWriter.WriteLine($"{temp.Enable}\t{temp.Type}\t{temp.SimplifiedChinese}\t{temp.SimplifiedChinese_Priority}\t{temp.TraditionalChinese}\t{temp.TraditionalChinese_Priority}");
                         }
                     });

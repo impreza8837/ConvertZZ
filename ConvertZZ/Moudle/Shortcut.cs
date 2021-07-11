@@ -6,7 +6,7 @@ namespace ConvertZZ.Moudle {
         private static Type m_type = Type.GetTypeFromProgID("WScript.Shell");
         private static object m_shell = Activator.CreateInstance(m_type);
 
-        [ComImport, TypeLibType((short)0x1040), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")]
+        [ComImport, TypeLibType(0x1040), Guid("F935DC23-1CF0-11D0-ADB9-00C04FD58A0B")]
         private interface IWshShortcut {
             [DispId(0)]
             string FullName {
@@ -75,7 +75,7 @@ namespace ConvertZZ.Moudle {
                 [DispId(0x3ef)]
                 set;
             }
-            [TypeLibFunc((short)0x40), DispId(0x7d0)]
+            [TypeLibFunc(0x40), DispId(0x7d0)]
             void Load([In, MarshalAs(UnmanagedType.BStr)] string PathLink);
             [DispId(0x7d1)]
             void Save();
@@ -88,8 +88,10 @@ namespace ConvertZZ.Moudle {
             shortcut.TargetPath = targetPath;
             shortcut.WorkingDirectory = workingDirectory;
             shortcut.Arguments = arguments;
-            if (!string.IsNullOrEmpty(iconPath))
+            if (!string.IsNullOrEmpty(iconPath)) {
                 shortcut.IconLocation = iconPath;
+            }
+
             shortcut.Save();
         }
     }

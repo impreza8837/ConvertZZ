@@ -20,18 +20,22 @@ namespace ConvertZZ {
     /// </summary>
     public partial class App : Application {
         public static System.Windows.Forms.NotifyIcon nIcon = new System.Windows.Forms.NotifyIcon();
-        public static Enum_DictionaryStatus DictionaryStatus { get; set; } = Enum_DictionaryStatus.NotLoad;
-        public App() {
 
+        public static Enum_DictionaryStatus DictionaryStatus { get; set; } = Enum_DictionaryStatus.NotLoad;
+
+        public App() {
         }
 
         public static ChineseConverter ChineseConverter { get; set; } = new ChineseConverter();
+
         public static Fanhuaji Fanhuaji {
             get; set;
         }
+
         private async void Application_Startup(object sender, StartupEventArgs e) {
-            App.Reload(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConvertZZ.json"));
+            Reload(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ConvertZZ.json"));
             ShutdownMode = ShutdownMode.OnMainWindowClose;
+
             if (e.Args.Length > 0) {
                 if (e.Args[0] == "/file" || e.Args[0] == "/audio") {
                     var ps = Process.GetProcessesByName("ConvertZZ");
@@ -41,10 +45,11 @@ namespace ConvertZZ {
                         hwndTest = ps.Where(x => x.StartTime.Ticks == mini).First().Handle;
                     } else {
                         ShowUI();
-                        Window_DialogHost window_DialogHost = new Window_DialogHost(e.Args[0] == "/file" ? Enums.Enum_Mode.Mode.File_FileName : Enums.Enum_Mode.Mode.AutioTag, e.Args.Skip(1).ToArray());
+                        Window_DialogHost window_DialogHost = new Window_DialogHost(e.Args[0] == "/file" ? Enum_Mode.Mode.File_FileName : Enum_Mode.Mode.AutioTag, e.Args.Skip(1).ToArray());
                         window_DialogHost.Show();
                         return;
                     }
+
                     try {
                         using (NamedPipeClientStream pipeClient = new NamedPipeClientStream(".", "ConvertZZ_Pipe", PipeDirection.InOut, PipeOptions.None, TokenImpersonationLevel.Impersonation)) {
                             Console.WriteLine("Connecting to server...\n");
@@ -63,13 +68,15 @@ namespace ConvertZZ {
                     Shutdown(1);
                     return;
                 }
+
                 Encoding[] encoding = new Encoding[2];
                 bool EncodingSetted = false;
                 int ToChinese = 0;
                 string path1 = null, path2 = null;
                 Regex Regex_path1 = null;
                 int VocabularyCorrection = -1;
-                Enum_Engine Engine = App.Settings.Engine;
+                Enum_Engine Engine = Settings.Engine;
+
                 for (int i = 0; i < e.Args.Length; i++) {
                     switch (e.Args[i]) {
                         case "/i:ule":
@@ -141,9 +148,11 @@ namespace ConvertZZ {
                             break;
                     }
                 }
-                if (VocabularyCorrection == 1 || (VocabularyCorrection == -1 && App.Settings.VocabularyCorrection)) {
+
+                if (VocabularyCorrection == 1 || (VocabularyCorrection == -1 && Settings.VocabularyCorrection)) {
                     await LoadDictionary(Engine);
                 }
+
                 string s = "";
                 List<string> file = new List<string>();
                 bool ModeIsOneFile = true;
@@ -153,42 +162,49 @@ namespace ConvertZZ {
                         file.Add(x)
                     );
                 } else {
-                    if (File.Exists(path1))
+                    if (File.Exists(path1)) {
                         file.Add(path1);
-                    else {
+                    } else {
                         Console.WriteLine($"檔案\"{path1}\" 不存在");
                         Console.Read();
                         Shutdown(1);
                         return;
                     }
                 }
+
                 if (encoding[1] == null || string.IsNullOrWhiteSpace(path1)) {
                     Console.WriteLine("參數錯誤(目標編碼為空或來源檔案路徑未填寫)");
                     Console.Read();
                     Shutdown(1);
                     return;
                 }
-                if (string.IsNullOrWhiteSpace(path2))
+
+                if (string.IsNullOrWhiteSpace(path2)) {
                     path2 = path1;
+                }
+
                 if (path1.Count(x => x == '*') != path2.Count(x => x == '*') && path2.Contains("*")) {
                     Console.WriteLine("參數錯誤(輸出路徑的萬用字元術與輸入路徑不同)");
                     Console.Read();
                     Shutdown(1);
                     return;
                 }
+
                 if (path1.Contains("*") && !path2.Contains("*") && File.Exists(path2)) {
                     Console.WriteLine("參數錯誤(輸入路徑具有萬用字元，但輸出路徑卻指向一個檔案)");
                     Console.Read();
                     Shutdown(1);
                     return;
                 }
+
                 foreach (var f in file) {
                     using (Stream stream = new FileStream(f, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                         using (StreamReader streamReader = new StreamReader(stream, encoding[0], false)) {
                             s = streamReader.ReadToEnd();
                         }
                     }
-                    if (!EncodingSetted)
+
+                    if (!EncodingSetted) {
                         switch (EncodingAnalyzer.Analyze(s)) {
                             case -1:
                                 encoding[0] = Encoding.Default;
@@ -201,15 +217,20 @@ namespace ConvertZZ {
                             case 3:
                                 encoding[0] = Encoding.GetEncoding("GBK");
                                 break;
+                            default:
+                                break;
                         }
+                    }
+
                     try {
                         s = await ConvertHelper.FileConvert(s, encoding, ToChinese, VocabularyCorrection);
                     } catch (Fanhuaji.FanhuajiException ex) {
                         Console.WriteLine($"[Error][{DateTime.Now.ToString()}][{ex.Message}] {f}");
                         continue;
                     }
+
                     if (ModeIsOneFile) {
-                        using (StreamWriter streamWriter = new StreamWriter(path2, false, encoding[1] == Encoding.UTF8 ? new UTF8Encoding(App.Settings.FileConvert.UnicodeAddBom) : encoding[1])) {
+                        using (StreamWriter streamWriter = new StreamWriter(path2, false, encoding[1] == Encoding.UTF8 ? new UTF8Encoding(Settings.FileConvert.UnicodeAddBom) : encoding[1])) {
                             streamWriter.Write(s);
                             streamWriter.Flush();
                         }
@@ -221,18 +242,19 @@ namespace ConvertZZ {
                                 string @string = "";
                                 for (int i = 0; i < array.Length; i++) {
                                     @string += array[i];
-                                    if (i + 1 <= m1.Groups.Count - 1)
+                                    if (i + 1 <= m1.Groups.Count - 1) {
                                         @string += m1.Groups[i + 1].Value;
+                                    }
                                 }
 
                                 Directory.CreateDirectory(Path.GetDirectoryName(@string));
-                                using (StreamWriter streamWriter = new StreamWriter(@string, false, encoding[1] == Encoding.UTF8 ? new UTF8Encoding(App.Settings.FileConvert.UnicodeAddBom) : encoding[1])) {
+                                using (StreamWriter streamWriter = new StreamWriter(@string, false, encoding[1] == Encoding.UTF8 ? new UTF8Encoding(Settings.FileConvert.UnicodeAddBom) : encoding[1])) {
                                     streamWriter.Write(s);
                                     streamWriter.Flush();
                                 }
                             } else {
                                 Directory.CreateDirectory(Path.GetDirectoryName(path2));
-                                using (StreamWriter streamWriter = new StreamWriter(Path.Combine(Path.GetDirectoryName(path2), Path.GetFileName(f)), false, encoding[1] == Encoding.UTF8 ? new UTF8Encoding(App.Settings.FileConvert.UnicodeAddBom) : encoding[1])) {
+                                using (StreamWriter streamWriter = new StreamWriter(Path.Combine(Path.GetDirectoryName(path2), Path.GetFileName(f)), false, encoding[1] == Encoding.UTF8 ? new UTF8Encoding(Settings.FileConvert.UnicodeAddBom) : encoding[1])) {
                                     streamWriter.Write(s);
                                     streamWriter.Flush();
                                 }
@@ -243,7 +265,7 @@ namespace ConvertZZ {
                 Shutdown(1);
                 return;
             } else {
-                if ((Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1)) {
+                if (Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName).Length > 1) {
                     MessageBox.Show("應用程式 " + Process.GetCurrentProcess().ProcessName + " 己在執行中，請先關閉舊視窗。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
                     Shutdown(1);
                     return;
@@ -251,32 +273,41 @@ namespace ConvertZZ {
                 ShowUI();
             }
         }
+
         internal static void CleanDictionary() {
             ChineseConverter.Lines.Clear();
             ChineseConverter.Reload();
             DictionaryStatus = Enum_DictionaryStatus.NotLoad;
         }
+
         internal static async Task LoadDictionary(Enum_Engine Engine) {
             switch (Engine) {
                 case Enum_Engine.Local:
                     DictionaryStatus = Enum_DictionaryStatus.Loading;
-                    if (Settings.VocabularyCorrection)
+                    if (Settings.VocabularyCorrection) {
                         await ChineseConverter.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Dictionary.csv"));
-                    else
+                    } else {
                         CleanDictionary();
+                    }
+
                     DictionaryStatus = Enum_DictionaryStatus.Loaded;
                     break;
                 case Enum_Engine.Fanhuaji:
                     if (Fanhuaji.CheckConnection()) {
-                        Fanhuaji = new Fanhuaji(true, Fanhuaji_API.Fanhuaji.Terms_of_Service);
+                        Fanhuaji = new Fanhuaji(true, Fanhuaji.Terms_of_Service);
                     }
+                    break;
+                default:
                     break;
             }
         }
+
         private async void ShowUI() {
             await LoadDictionary(Settings.Engine);
+
             nIcon.Icon = ConvertZZ.Properties.Resources.icon;
             nIcon.Visible = true;
+
             if (Settings.CheckVersion) {
                 new Thread(new ThreadStart(() => {
                     var versionReport = UpdateChecker.ChecktVersion();
@@ -287,6 +318,7 @@ namespace ConvertZZ {
                     }
                 })).Start();
             }
+
             MainWindow window = new MainWindow();
             MainWindow = window;
             window.Show();

@@ -13,8 +13,10 @@ namespace ConvertZZ {
         public Window_Setting() {
             LoadSetting();
             DataContext = this;
+
             InitializeComponent();
         }
+
         private void LoadSetting() {
             _AssistiveTouchEnable = App.Settings.AssistiveTouch;
             _VocabularyCorrenctionEnable = App.Settings.VocabularyCorrection;
@@ -62,6 +64,7 @@ namespace ConvertZZ {
             _ShortCut4_Key = App.Settings.HotKey.Feature4.Key;
             _ShortCut4_ModifyKey = App.Settings.HotKey.Feature4.Modift;
         }
+
         private void SaveSetting() {
             App.Settings.AssistiveTouch = AssistiveTouchEnable;
             App.Settings.VocabularyCorrection = VocabularyCorrenctionEnable;
@@ -108,9 +111,9 @@ namespace ConvertZZ {
             App.Settings.HotKey.Feature4.Key = ShortCut4_Key;
             App.Settings.HotKey.Feature4.Modift = ShortCut4_ModifyKey;
 
-
             App.Save();
         }
+
         public static Dictionary<string, string> Action {
             get;
         } = new Dictionary<string, string>()
@@ -141,6 +144,7 @@ namespace ConvertZZ {
             { "半形>全形" , "ze1" } ,
             { "全形>半形" , "ze2" }
         };
+
         private bool _AssistiveTouchEnable, _VocabularyCorrenctionEnable, _PromptEnable, _RecognitionEncodingEnable;
         private string _MaxPriviewLength;
         private bool _CheckVersion;
@@ -154,59 +158,74 @@ namespace ConvertZZ {
         private KeyValuePair<string, string> _ShortCut1_Action, _ShortCut2_Action, _ShortCut3_Action, _ShortCut4_Action;
         private string _ShortCut1_Key, _ShortCut1_ModifyKey, _ShortCut2_Key, _ShortCut2_ModifyKey, _ShortCut3_Key, _ShortCut3_ModifyKey, _ShortCut4_Key, _ShortCut4_ModifyKey;
 
-
         public bool AssistiveTouchEnable {
-            get => _AssistiveTouchEnable; set {
+            get => _AssistiveTouchEnable;
+            set {
                 _AssistiveTouchEnable = value;
                 Owner.Visibility = value ? Visibility.Visible : Visibility.Hidden;
                 SaveSetting();
             }
         }
+
         public bool VocabularyCorrenctionEnable {
-            get => _VocabularyCorrenctionEnable; set {
+            get => _VocabularyCorrenctionEnable;
+            set {
                 _VocabularyCorrenctionEnable = value;
                 SaveSetting();
             }
         }
+
         public bool PromptEnable {
-            get => _PromptEnable; set {
+            get => _PromptEnable;
+            set {
                 _PromptEnable = value;
                 SaveSetting();
             }
         }
+
         public bool RecognitionEncodingEnable {
-            get => _RecognitionEncodingEnable; set {
+            get => _RecognitionEncodingEnable;
+            set {
                 _RecognitionEncodingEnable = value;
                 SaveSetting();
             }
         }
 
         public string MaxPriviewLength {
-            get => _MaxPriviewLength; set {
+            get => _MaxPriviewLength;
+            set {
                 _MaxPriviewLength = value;
                 SaveSetting();
             }
         }
+
         public bool CheckVersion {
-            get => _CheckVersion; set {
+            get => _CheckVersion;
+            set {
                 _CheckVersion = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> Quick_L1 {
-            get => _Quick_L1; set {
+            get => _Quick_L1;
+            set {
                 _Quick_L1 = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> Quick_L2 {
-            get => _Quick_L2; set {
+            get => _Quick_L2;
+            set {
                 _Quick_L2 = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> Quick_L3 {
-            get => _Quick_L3; set {
+            get => _Quick_L3;
+            set {
                 _Quick_L3 = value;
                 SaveSetting();
             }
@@ -217,31 +236,40 @@ namespace ConvertZZ {
             TextBox textbox = sender as TextBox;
             textbox.Text = (e.Key == Key.System ? e.SystemKey : e.Key == Key.ImeProcessed ? e.ImeProcessedKey : e.Key).ToString();
         }
+
         private void TextBox_ShortCut_Modify_PreviewKeyDown(object sender, KeyEventArgs e) {
             e.Handled = true;
             TextBox textbox = sender as TextBox;
             textbox.Text = e.KeyboardDevice.Modifiers.ToString();
         }
+
         public KeyValuePair<string, string> Quick_L4 {
-            get => _Quick_L4; set {
+            get => _Quick_L4;
+            set {
                 _Quick_L4 = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> Quick_L5 {
-            get => _Quick_L5; set {
+            get => _Quick_L5;
+            set {
                 _Quick_L5 = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> Quick_L6 {
-            get => _Quick_L6; set {
+            get => _Quick_L6;
+            set {
                 _Quick_L6 = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> Quick_R1 {
-            get => _Quick_R1; set {
+            get => _Quick_R1;
+            set {
                 _Quick_R1 = value;
                 SaveSetting();
             }
@@ -253,13 +281,16 @@ namespace ConvertZZ {
         }
 
         private async void Button_DictionaryEdit_Click(object sender, RoutedEventArgs e) {
-            if (App.Settings.Engine == Enums.Enum_Engine.Local && App.DictionaryStatus != Enums.Enum_DictionaryStatus.Loaded)
+            if (App.Settings.Engine == Enums.Enum_Engine.Local && App.DictionaryStatus != Enums.Enum_DictionaryStatus.Loaded) {
                 await App.LoadDictionary(App.Settings.Engine);
+            }
+
             new Window_DictionaryEditor().ShowDialog();
         }
 
         public KeyValuePair<string, string> Quick_R2 {
-            get => _Quick_R2; set {
+            get => _Quick_R2;
+            set {
                 _Quick_R2 = value;
                 SaveSetting();
             }
@@ -270,194 +301,230 @@ namespace ConvertZZ {
         }
 
         private void RadioButton_Fanhuaji_Checked(object sender, RoutedEventArgs e) {
-            if (!this.IsLoaded)
+            if (!IsLoaded) {
                 return;
-            if (Moudle.Window_MessageBoxEx.ShowDialog(Fanhuaji_API.Fanhuaji.Terms_of_Service, "使用繁化姬API須接受以下條約", "我不同意", "我同意") != Moudle.Window_MessageBoxEx.MessageBoxExResult.B)
+            }
+
+            if (Moudle.Window_MessageBoxEx.ShowDialog(Fanhuaji_API.Fanhuaji.Terms_of_Service, "使用繁化姬API須接受以下條約", "我不同意", "我同意") != Moudle.Window_MessageBoxEx.MessageBoxExResult.B) {
                 UseLocalDic = true;
+            }
         }
 
         private async void Window_Closing(object sender, CancelEventArgs e) {
-            if (App.Settings.VocabularyCorrection)
+            if (App.Settings.VocabularyCorrection) {
                 await App.LoadDictionary(App.Settings.Engine);
-            else
+            } else {
                 App.CleanDictionary();
+            }
         }
 
         public KeyValuePair<string, string> Quick_R3 {
-            get => _Quick_R3; set {
+            get => _Quick_R3;
+            set {
                 _Quick_R3 = value;
                 SaveSetting();
             }
         }
         public KeyValuePair<string, string> Quick_R4 {
-            get => _Quick_R4; set {
+            get => _Quick_R4;
+            set {
                 _Quick_R4 = value;
                 SaveSetting();
             }
         }
         public KeyValuePair<string, string> Quick_R5 {
-            get => _Quick_R5; set {
+            get => _Quick_R5;
+            set {
                 _Quick_R5 = value;
                 SaveSetting();
             }
         }
         public KeyValuePair<string, string> Quick_R6 {
-            get => _Quick_R6; set {
+            get => _Quick_R6;
+            set {
                 _Quick_R6 = value;
                 SaveSetting();
             }
         }
         public string DefaultPath {
-            get => _DefaultPath; set {
+            get => _DefaultPath;
+            set {
                 _DefaultPath = value;
                 SaveSetting();
             }
         }
         public string TypeFilter {
-            get => _TypeFilter; set {
+            get => _TypeFilter;
+            set {
                 _TypeFilter = value;
                 SaveSetting();
             }
         }
         public string FixLabel {
-            get => _FixLabel; set {
+            get => _FixLabel;
+            set {
                 _FixLabel = value;
                 SaveSetting();
             }
         }
         public bool UseLocalDic {
-            get => _UseLocalDic; set {
+            get => _UseLocalDic;
+            set {
                 _UseLocalDic = value;
                 SaveSetting();
             }
         }
         public bool UseFanhuajiAPI {
-            get => _UseFanhuajiAPI; set {
+            get => _UseFanhuajiAPI;
+            set {
                 _UseFanhuajiAPI = value;
                 SaveSetting();
             }
         }
 
         public bool AutoCopy {
-            get => _AutoCopy; set {
+            get => _AutoCopy;
+            set {
                 _AutoCopy = value;
                 SaveSetting();
             }
         }
         public bool AutoPaste {
-            get => _AutoPaste; set {
+            get => _AutoPaste;
+            set {
                 _AutoPaste = value;
                 SaveSetting();
             }
         }
 
         public string ShortCut1_Key {
-            get => _ShortCut1_Key; set {
+            get => _ShortCut1_Key;
+            set {
                 _ShortCut1_Key = value;
                 SaveSetting();
             }
         }
         public string ShortCut1_ModifyKey {
-            get => _ShortCut1_ModifyKey; set {
+            get => _ShortCut1_ModifyKey;
+            set {
                 _ShortCut1_ModifyKey = value;
                 SaveSetting();
             }
         }
         public string ShortCut2_Key {
-            get => _ShortCut2_Key; set {
+            get => _ShortCut2_Key;
+            set {
                 _ShortCut2_Key = value;
                 SaveSetting();
             }
         }
         public string ShortCut2_ModifyKey {
-            get => _ShortCut2_ModifyKey; set {
+            get => _ShortCut2_ModifyKey;
+            set {
                 _ShortCut2_ModifyKey = value;
                 SaveSetting();
             }
         }
         public string ShortCut3_Key {
-            get => _ShortCut3_Key; set {
+            get => _ShortCut3_Key;
+            set {
                 _ShortCut3_Key = value;
                 SaveSetting();
             }
         }
         public string ShortCut3_ModifyKey {
-            get => _ShortCut3_ModifyKey; set {
+            get => _ShortCut3_ModifyKey;
+            set {
                 _ShortCut3_ModifyKey = value;
                 SaveSetting();
             }
         }
         public string ShortCut4_Key {
-            get => _ShortCut4_Key; set {
+            get => _ShortCut4_Key;
+            set {
                 _ShortCut4_Key = value;
                 SaveSetting();
             }
         }
         public string ShortCut4_ModifyKey {
-            get => _ShortCut4_ModifyKey; set {
+            get => _ShortCut4_ModifyKey;
+            set {
                 _ShortCut4_ModifyKey = value;
                 SaveSetting();
             }
         }
 
         public bool ShortCut1_IsActived {
-            get => _ShortCut1_IsActived; set {
+            get => _ShortCut1_IsActived;
+            set {
                 _ShortCut1_IsActived = value;
                 SaveSetting();
             }
         }
+
         public bool ShortCut2_IsActived {
-            get => _ShortCut2_IsActived; set {
+            get => _ShortCut2_IsActived;
+            set {
                 _ShortCut2_IsActived = value;
                 SaveSetting();
             }
         }
+
         public bool ShortCut3_IsActived {
-            get => _ShortCut3_IsActived; set {
+            get => _ShortCut3_IsActived;
+            set {
                 _ShortCut3_IsActived = value;
                 SaveSetting();
             }
         }
+
         public bool ShortCut4_IsActived {
-            get => _ShortCut4_IsActived; set {
+            get => _ShortCut4_IsActived;
+            set {
                 _ShortCut4_IsActived = value;
                 SaveSetting();
             }
         }
 
         public KeyValuePair<string, string> ShortCut1_Action {
-            get => _ShortCut1_Action; set {
+            get => _ShortCut1_Action;
+            set {
                 _ShortCut1_Action = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> ShortCut2_Action {
-            get => _ShortCut2_Action; set {
+            get => _ShortCut2_Action;
+            set {
                 _ShortCut2_Action = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> ShortCut3_Action {
-            get => _ShortCut3_Action; set {
+            get => _ShortCut3_Action;
+            set {
                 _ShortCut3_Action = value;
                 SaveSetting();
             }
         }
+
         public KeyValuePair<string, string> ShortCut4_Action {
-            get => _ShortCut4_Action; set {
+            get => _ShortCut4_Action;
+            set {
                 _ShortCut4_Action = value;
                 SaveSetting();
             }
         }
 
         public bool UnicodeAddBom {
-            get => _UnicodeAddBom; set {
+            get => _UnicodeAddBom;
+            set {
                 _UnicodeAddBom = value;
                 SaveSetting();
             }
         }
-
-
 
         public event PropertyChangedEventHandler PropertyChanged;
     }

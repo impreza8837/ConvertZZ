@@ -54,12 +54,14 @@ namespace ConvertZZ.Moudle {
                 return true;
             } catch { return false; }
         }
+
         private static void SetFirstInGroup(object obj, string key, string str) {
             var p = obj.GetType().GetProperty(key);
-            string[] values = (p.GetValue(key) as string[]);
+            string[] values = p.GetValue(key) as string[];
             values[0] = str;
             p.SetValue(obj, values, null);
         }
+
         private static void SetUnJoinGroup(object obj, string key, string str) {
             var p = obj.GetType().GetProperty(key);
             p.SetValue(obj, str.Split(new string[] { "; " }, StringSplitOptions.RemoveEmptyEntries), null);
