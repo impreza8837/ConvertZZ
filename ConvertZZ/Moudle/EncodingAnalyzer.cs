@@ -2,10 +2,8 @@
 using System.Linq;
 using System.Text;
 
-namespace ConvertZZ.Moudle
-{
-    class EncodingAnalyzer
-    {
+namespace ConvertZZ.Moudle {
+    class EncodingAnalyzer {
         /// <summary>
         /// 快速篩選string是BIG5或GBK
         /// </summary>
@@ -17,8 +15,7 @@ namespace ConvertZZ.Moudle
         /// 2: GBK
         /// 3: GBK格式的BIG5，建議使用GBK->BIG5
         /// </returns>
-        public static int Analyze(string String)
-        {
+        public static int Analyze(string String) {
             Encoding BIG5 = Encoding.GetEncoding("BIG5");
             Encoding GBK = Encoding.GetEncoding("GBK");
             float[] report = new float[4];
@@ -37,34 +34,28 @@ namespace ConvertZZ.Moudle
         /// <summary>
         /// 分析報告
         /// </summary>
-        class Report
-        {
+        class Report {
             //統計解讀為ASCII、符號、常用字、次常用字及亂碼(非有效字元)字數
             public int Ascii, Symbol, Common, Rare, Unknow;
             /// <summary>
             /// 亂碼指標(數值愈大，不是該編碼的機率愈高)
             /// </summary>
-            public float BadSmell
-            {
-                get
-                {
+            public float BadSmell {
+                get {
                     int total = Ascii + Symbol + Common + Rare + Unknow;
-                    if (total == 0) return 0;
+                    if (total == 0)
+                        return 0;
                     return (float)(Rare + Unknow * 3) / total;
                 }
             }
         }
-        private static Report AnalyzeBig5(byte[] data)
-        {
+        private static Report AnalyzeBig5(byte[] data) {
             Report res = new Report();
             bool isDblBytes = false;
             byte dblByteHi = 0;
-            foreach (byte b in data)
-            {
-                if (isDblBytes)
-                {
-                    if (b >= 0x40 && b <= 0x7e || b >= 0xa1 && b <= 0xfe)
-                    {
+            foreach (byte b in data) {
+                if (isDblBytes) {
+                    if (b >= 0x40 && b <= 0x7e || b >= 0xa1 && b <= 0xfe) {
                         int c = dblByteHi * 0x100 + b;
                         if (c >= 0xa140 && c <= 0xa3bf)
                             res.Symbol++; //符號
@@ -74,32 +65,24 @@ namespace ConvertZZ.Moudle
                             res.Rare++; //次常用字
                         else
                             res.Unknow++; //無效字元
-                    }
-                    else
+                    } else
                         res.Unknow++;
                     isDblBytes = false;
-                }
-                else if (b >= 0x80 && b <= 0xfe)
-                {
+                } else if (b >= 0x80 && b <= 0xfe) {
                     isDblBytes = true;
                     dblByteHi = b;
-                }
-                else if (b < 0x80)
+                } else if (b < 0x80)
                     res.Ascii++;
             }
             return res;
         }
-        private static Report AnalyzeGBK(byte[] data)
-        {
+        private static Report AnalyzeGBK(byte[] data) {
             Report res = new Report();
             bool isDblBytes = false;
             byte dblByteHi = 0;
-            foreach (byte b in data)
-            {
-                if (isDblBytes)
-                {
-                    if (b >= 0xa1 && b <= 0xfe)
-                    {
+            foreach (byte b in data) {
+                if (isDblBytes) {
+                    if (b >= 0xa1 && b <= 0xfe) {
                         if (dblByteHi >= 0xa1 && dblByteHi <= 0xa9)
                             res.Symbol++; //符號
                         else if (dblByteHi >= 0xb0 && dblByteHi <= 0xd7)
@@ -108,17 +91,13 @@ namespace ConvertZZ.Moudle
                             res.Rare++; //二級漢字(次常用字)
                         else
                             res.Unknow++; //無效字元
-                    }
-                    else
+                    } else
                         res.Unknow++; //無效字元
                     isDblBytes = false;
-                }
-                else if (b >= 0xa1 && b <= 0xf7)
-                {
+                } else if (b >= 0xa1 && b <= 0xf7) {
                     isDblBytes = true;
                     dblByteHi = b;
-                }
-                else if (b < 0x80)
+                } else if (b < 0x80)
                     res.Ascii++;
             }
             return res;

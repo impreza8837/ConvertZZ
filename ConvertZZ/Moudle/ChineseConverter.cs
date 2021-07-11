@@ -1,15 +1,13 @@
-﻿using ConvertZZ.Moudle;
-using Flier.Toolbox.Text;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using ConvertZZ.Moudle;
+using Flier.Toolbox.Text;
 
-namespace ConvertZZ
-{
-    public class ChineseConverter
-    {
+namespace ConvertZZ {
+    public class ChineseConverter {
         #region OS的轉換
         internal const int LOCALE_SYSTEM_DEFAULT = 0x0800;
         internal const int LCMAP_SIMPLIFIED_CHINESE = 0x02000000;
@@ -35,8 +33,7 @@ namespace ConvertZZ
         /// </summary> 
         /// <param name="pSource">要轉換的繁體字：體</param> 
         /// <returns>轉換後的簡體字：體</returns> 
-        public string ToSimplified(string pSource)
-        {
+        public string ToSimplified(string pSource) {
             pSource = FR_Reserved.ReplaceAll(pSource);
             String tTarget = new String(' ', pSource.Length);
             int tReturn = LCMapStringEx(LOCALE_SYSTEM_DEFAULT, LCMAP_SIMPLIFIED_CHINESE, pSource, pSource.Length, tTarget, pSource.Length);
@@ -49,8 +46,7 @@ namespace ConvertZZ
         /// </summary> 
         /// <param name="pSource">要轉換的繁體字：體</param> 
         /// <returns>轉換後的簡體字：體</returns> 
-        public string ToTraditional(string pSource)
-        {
+        public string ToTraditional(string pSource) {
             pSource = FR_Reserved.ReplaceAll(pSource);
             String tTarget = new String(' ', pSource.Length);
             int tReturn = LCMapStringEx(LOCALE_SYSTEM_DEFAULT, LCMAP_TRADITIONAL_CHINESE, pSource, pSource.Length, tTarget, pSource.Length);
@@ -65,17 +61,14 @@ namespace ConvertZZ
         Dictionary<string, string> ReservedWordTable = new Dictionary<string, string>();
         Dictionary<string, string> ReservedWordTable_Revert = new Dictionary<string, string>();
         public FastReplace FR_Reserved = new FastReplace(new Dictionary<string, string>()), FRRevert_Reserved = new FastReplace(new Dictionary<string, string>());
-        public ChineseConverter()
-        {
+        public ChineseConverter() {
         }
-        public async Task Load(string fileName)
-        {
+        public async Task Load(string fileName) {
             Lines.Clear();
             Lines.AddRange(await DictionaryFile_Helper.Load(fileName));
             Reload();
         }
-        public void Reload()
-        {
+        public void Reload() {
             var lines = Lines.ToLookup(x => x.SimplifiedChinese).Select(coll => coll.First()).ToList();
             FR = new FastReplace(lines.Where(x => x.Enable).OrderByDescending(x => x.SimplifiedChinese_Priority).ThenByDescending(x => x.SimplifiedChinese.Length).ToDictionary(x => x.SimplifiedChinese, x => x.TraditionalChinese));
 
@@ -93,8 +86,7 @@ namespace ConvertZZ
         /// <param name="input"></param>
         /// <param name="C2T">True:簡體轉繁體  False:繁體轉簡體</param>
         /// <returns></returns>
-        public string Convert(string input, bool C2T)
-        {
+        public string Convert(string input, bool C2T) {
             //這個方法最快
             if (C2T)
                 return FR.ReplaceAll(input);
@@ -114,11 +106,9 @@ namespace ConvertZZ
             }
             return input;*/
         }
-        private void InsertTo_ReservedWordTable(string str)
-        {
+        private void InsertTo_ReservedWordTable(string str) {
             string temp;
-            do
-            {
+            do {
                 temp = $"❂{Guid.NewGuid().ToString()}❂";
             }
             while (ReservedWordTable.ContainsKey(temp));

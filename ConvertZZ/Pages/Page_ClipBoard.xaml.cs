@@ -1,5 +1,4 @@
-﻿using ConvertZZ.Moudle;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,26 +7,28 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using ConvertZZ.Moudle;
 using static Fanhuaji_API.Fanhuaji;
 
-namespace ConvertZZ.Pages
-{
+namespace ConvertZZ.Pages {
     /// <summary>
     /// Page_ClipBoard.xaml 的互動邏輯
     /// </summary>
-    public partial class Page_ClipBoard : Page, INotifyPropertyChanged
-    {
+    public partial class Page_ClipBoard : Page, INotifyPropertyChanged {
         IntPtr hwnd = IntPtr.Zero;
-        public Page_ClipBoard(IntPtr hwnd)
-        {
+        public Page_ClipBoard(IntPtr hwnd) {
             this.hwnd = hwnd;
             InitializeComponent();
             DataContext = this;
         }
 
-        public string ClipBoard { get; set; }
+        public string ClipBoard {
+            get; set;
+        }
 
-        public string Output { get; set; }
+        public string Output {
+            get; set;
+        }
 
 
 
@@ -41,11 +42,9 @@ namespace ConvertZZ.Pages
         /// 輸出簡繁轉換：0:一般  1:繁體中文 2:簡體中文
         /// </summary>
         int ToChinese = 0;
-        private async void Encoding_Selected(object sender, RoutedEventArgs e)
-        {
+        private async void Encoding_Selected(object sender, RoutedEventArgs e) {
             RadioButton radiobutton = ((RadioButton)sender);
-            switch (radiobutton.GroupName)
-            {
+            switch (radiobutton.GroupName) {
                 case "origin":
                     encoding[0] = Encoding.GetEncoding(((string)radiobutton.Content).Trim());
                     break;
@@ -55,10 +54,8 @@ namespace ConvertZZ.Pages
             }
             await Preview();
         }
-        private async void Chinese_Click(object sender, RoutedEventArgs e)
-        {
-            switch (((RadioButton)sender).Uid)
-            {
+        private async void Chinese_Click(object sender, RoutedEventArgs e) {
+            switch (((RadioButton)sender).Uid) {
                 case "NChinese":
                     ToChinese = 0;
                     break;
@@ -74,14 +71,10 @@ namespace ConvertZZ.Pages
 
 
 
-        private async Task Preview()
-        {
-            try
-            {
+        private async Task Preview() {
+            try {
                 Output = await ConvertHelper.ConvertAsync(ClipBoard, encoding, ToChinese);
-            }
-            catch (FanhuajiException val)
-            {
+            } catch (FanhuajiException val) {
                 FanhuajiException fe = val;
                 Window_MessageBoxEx.ShowDialog(((Exception)fe).Message, "繁化姬API", "確定");
             }
@@ -89,8 +82,7 @@ namespace ConvertZZ.Pages
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
+        private void Page_Loaded(object sender, RoutedEventArgs e) {
             #region 註冊Hook並監聽剪貼簿            
             hWndSource = HwndSource.FromHwnd(hwnd);
             hWndSource.AddHook(this.WinProc);   // start processing window messages 
@@ -98,22 +90,16 @@ namespace ConvertZZ.Pages
             #endregion
         }
 
-        private void Page_Unloaded(object sender, RoutedEventArgs e)
-        {
+        private void Page_Unloaded(object sender, RoutedEventArgs e) {
             ChangeClipboardChain(hWndSource.Handle, mNextClipBoardViewerHWnd);
         }
-        private IntPtr WinProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            switch (msg)
-            {
+        private IntPtr WinProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
+            switch (msg) {
                 case WM_CHANGECBCHAIN:
-                    if (wParam == mNextClipBoardViewerHWnd)
-                    {
+                    if (wParam == mNextClipBoardViewerHWnd) {
                         // clipboard viewer chain changed, need to fix it. 
                         mNextClipBoardViewerHWnd = lParam;
-                    }
-                    else if (mNextClipBoardViewerHWnd != IntPtr.Zero)
-                    {
+                    } else if (mNextClipBoardViewerHWnd != IntPtr.Zero) {
                         // pass the message to the next viewer. 
                         SendMessage(mNextClipBoardViewerHWnd, msg, wParam, lParam);
                     }
@@ -121,11 +107,9 @@ namespace ConvertZZ.Pages
 
                 case WM_DRAWCLIPBOARD:
                     // clipboard content changed 
-                    if (Clipboard.ContainsText())
-                    {
+                    if (Clipboard.ContainsText()) {
                         ClipBoard = ClipBoardHelper.GetClipBoard_UnicodeText();
-                        ((ThreadStart)async delegate
-                        {
+                        ((ThreadStart)async delegate {
                             await Preview();
                         })();
                     }
@@ -156,8 +140,7 @@ namespace ConvertZZ.Pages
         public static extern int SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
         #endregion
 
-        private void Button_CopyOutput_Click(object sender, RoutedEventArgs e)
-        {
+        private void Button_CopyOutput_Click(object sender, RoutedEventArgs e) {
             ClipBoardHelper.SetClipBoard_UnicodeText(Output);
         }
     }

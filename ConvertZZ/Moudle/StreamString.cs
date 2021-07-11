@@ -3,21 +3,17 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConvertZZ.Moudle
-{
-    public class StreamString
-    {
+namespace ConvertZZ.Moudle {
+    public class StreamString {
         private Stream ioStream;
         private UnicodeEncoding streamEncoding;
 
-        public StreamString(Stream ioStream)
-        {
+        public StreamString(Stream ioStream) {
             this.ioStream = ioStream;
             streamEncoding = new UnicodeEncoding();
         }
 
-        public string ReadString()
-        {
+        public string ReadString() {
             int len;
             len = ioStream.ReadByte() * 256;
             len += ioStream.ReadByte();
@@ -25,8 +21,7 @@ namespace ConvertZZ.Moudle
             ioStream.Read(inBuffer, 0, len);
             return streamEncoding.GetString(inBuffer);
         }
-        public async Task<string> ReadStringAsync()
-        {
+        public async Task<string> ReadStringAsync() {
             int len;
             len = ioStream.ReadByte() * 256;
             len += ioStream.ReadByte();
@@ -34,12 +29,10 @@ namespace ConvertZZ.Moudle
             await ioStream.ReadAsync(inBuffer, 0, len);
             return streamEncoding.GetString(inBuffer);
         }
-        public int WriteString(string outString)
-        {
+        public int WriteString(string outString) {
             byte[] outBuffer = streamEncoding.GetBytes(outString);
             int len = outBuffer.Length;
-            if (len > UInt16.MaxValue)
-            {
+            if (len > UInt16.MaxValue) {
                 len = (int)UInt16.MaxValue;
             }
             ioStream.WriteByte((byte)(len / 256));
@@ -48,12 +41,10 @@ namespace ConvertZZ.Moudle
             ioStream.Flush();
             return outBuffer.Length + 2;
         }
-        public async Task<int> WriteStringAsync(string outString)
-        {
+        public async Task<int> WriteStringAsync(string outString) {
             byte[] outBuffer = streamEncoding.GetBytes(outString);
             int len = outBuffer.Length;
-            if (len > UInt16.MaxValue)
-            {
+            if (len > UInt16.MaxValue) {
                 len = (int)UInt16.MaxValue;
             }
             await ioStream.WriteAsync(new byte[] { (byte)(len / 256) }, 0, 1);

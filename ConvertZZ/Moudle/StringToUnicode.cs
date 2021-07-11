@@ -1,22 +1,16 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace ConvertZZ.Moudle
-{
-    public class StringToUnicode
-    {
-        public static string TryToConvertLatin1ToUnicode(string str, Encoding encoding)
-        {
-            if (CalcRate(str.ToArray(), Latin1) > 0.2)
-            {
+namespace ConvertZZ.Moudle {
+    public class StringToUnicode {
+        public static string TryToConvertLatin1ToUnicode(string str, Encoding encoding) {
+            if (CalcRate(str.ToArray(), Latin1) > 0.2) {
                 return encoding.GetString(Encoding.GetEncoding("ISO-8859-1").GetBytes(str));
-            }
-            else
+            } else
                 return str;
         }
 
-        private static double CalcRate(char[] Array, char[] Table)
-        {
+        private static double CalcRate(char[] Array, char[] Table) {
             double count = Array.Count(x => Table.Contains(x));
             return count / Array.Length;
         }

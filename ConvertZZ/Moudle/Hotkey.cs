@@ -4,10 +4,8 @@ using System.Runtime.InteropServices;
 using System.Windows.Input;
 using System.Windows.Interop;
 
-namespace ConvertZZ.Moudle
-{
-    public class HotKey : IDisposable
-    {
+namespace ConvertZZ.Moudle {
+    public class HotKey : IDisposable {
         private static Dictionary<int, HotKey> _dictHotKeyToCalBackProc;
 
         [DllImport("user32.dll")]
@@ -20,30 +18,34 @@ namespace ConvertZZ.Moudle
 
         private bool _disposed = false;
 
-        public Key Key { get; private set; }
-        public KeyModifier KeyModifiers { get; private set; }
-        public Action<HotKey> Action { get; private set; }
-        private int Id { get; set; }
+        public Key Key {
+            get; private set;
+        }
+        public KeyModifier KeyModifiers {
+            get; private set;
+        }
+        public Action<HotKey> Action {
+            get; private set;
+        }
+        private int Id {
+            get; set;
+        }
 
-        public HotKey(Key k, KeyModifier keyModifiers, Action<HotKey> action, bool register = true)
-        {
+        public HotKey(Key k, KeyModifier keyModifiers, Action<HotKey> action, bool register = true) {
             Key = k;
             KeyModifiers = keyModifiers;
             Action = action;
-            if (register)
-            {
+            if (register) {
                 Register();
             }
         }
 
-        public bool Register()
-        {
+        public bool Register() {
             int virtualKeyCode = KeyInterop.VirtualKeyFromKey(Key);
             Id = virtualKeyCode + ((int)KeyModifiers * 0x10000);
             bool result = RegisterHotKey(IntPtr.Zero, Id, (UInt32)KeyModifiers, (UInt32)virtualKeyCode);
 
-            if (_dictHotKeyToCalBackProc == null)
-            {
+            if (_dictHotKeyToCalBackProc == null) {
                 _dictHotKeyToCalBackProc = new Dictionary<int, HotKey>();
                 ComponentDispatcher.ThreadFilterMessage += new ThreadMessageEventHandler(ComponentDispatcherThreadFilterMessage);
             }
@@ -52,28 +54,21 @@ namespace ConvertZZ.Moudle
             return result;
         }
 
-        public void Unregister()
-        {
+        public void Unregister() {
             HotKey hotKey;
-            if (_dictHotKeyToCalBackProc.TryGetValue(Id, out hotKey))
-            {
+            if (_dictHotKeyToCalBackProc.TryGetValue(Id, out hotKey)) {
                 UnregisterHotKey(IntPtr.Zero, Id);
                 _dictHotKeyToCalBackProc.Remove(Id);
             }
         }
 
-        private static void ComponentDispatcherThreadFilterMessage(ref MSG msg, ref bool handled)
-        {
-            if (!handled)
-            {
-                if (msg.message == WmHotKey)
-                {
+        private static void ComponentDispatcherThreadFilterMessage(ref MSG msg, ref bool handled) {
+            if (!handled) {
+                if (msg.message == WmHotKey) {
                     HotKey hotKey;
 
-                    if (_dictHotKeyToCalBackProc.TryGetValue((int)msg.wParam, out hotKey))
-                    {
-                        if (hotKey.Action != null)
-                        {
+                    if (_dictHotKeyToCalBackProc.TryGetValue((int)msg.wParam, out hotKey)) {
+                        if (hotKey.Action != null) {
                             hotKey.Action.Invoke(hotKey);
                         }
                         handled = true;
@@ -81,16 +76,14 @@ namespace ConvertZZ.Moudle
                 }
             }
         }
-        ~HotKey()
-        {
+        ~HotKey() {
             Dispose();
         }
         // ******************************************************************
         // Implement IDisposable.
         // Do not make this method virtual.
         // A derived class should not be able to override this method.
-        public void Dispose()
-        {
+        public void Dispose() {
             Dispose(true);
             // This object will be cleaned up by the Dispose method.
             // Therefore, you should call GC.SupressFinalize to
@@ -108,15 +101,12 @@ namespace ConvertZZ.Moudle
         // If disposing equals false, the method has been called by the
         // runtime from inside the finalizer and you should not reference
         // other objects. Only unmanaged resources can be _disposed.
-        protected virtual void Dispose(bool disposing)
-        {
+        protected virtual void Dispose(bool disposing) {
             // Check to see if Dispose has already been called.
-            if (!this._disposed)
-            {
+            if (!this._disposed) {
                 // If disposing equals true, dispose all managed
                 // and unmanaged resources.
-                if (disposing)
-                {
+                if (disposing) {
                     // Dispose managed resources.
                     Unregister();
                 }
@@ -127,8 +117,7 @@ namespace ConvertZZ.Moudle
         }
     }
     [Flags]
-    public enum KeyModifier
-    {
+    public enum KeyModifier {
         None = 0x0000,
         Alt = 0x0001,
         Control = 0x0002,

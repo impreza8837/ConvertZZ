@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Text;
 
-namespace ConvertZZ
-{
-    public class TransferEncodeHelper
-    {
-        public static string TransferStr(string str, Encoding originalEncode, Encoding targetEncode)
-        {
-            try
-            {
+namespace ConvertZZ {
+    public class TransferEncodeHelper {
+        public static string TransferStr(string str, Encoding originalEncode, Encoding targetEncode) {
+            try {
                 byte[] temp = originalEncode.GetBytes(str);
                 byte[] targetEncodeBytes = Encoding.Convert(originalEncode, targetEncode, temp);
 
@@ -16,9 +12,7 @@ namespace ConvertZZ
                 targetEncode.GetChars(targetEncodeBytes, 0, targetEncodeBytes.Length, targetEncodeChars, 0);
                 string targetEncodeString = new string(targetEncodeChars);
                 return targetEncodeString;
-            }
-            catch
-            {
+            } catch {
                 Console.WriteLine("There is an exception.");
                 return null;
             }

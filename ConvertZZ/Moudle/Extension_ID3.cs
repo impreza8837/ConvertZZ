@@ -1,15 +1,10 @@
 ﻿using System;
 
-namespace ConvertZZ.Moudle
-{
-    public static class Extension_ID3
-    {
-        public static bool SetPropertiesValue(this TagLib.Tag tag, string key, string str)
-        {
-            try
-            {
-                switch (key)
-                {
+namespace ConvertZZ.Moudle {
+    public static class Extension_ID3 {
+        public static bool SetPropertiesValue(this TagLib.Tag tag, string key, string str) {
+            try {
+                switch (key) {
                     case "FirstArtist":
                         SetFirstInGroup(tag, "Performers", str);
                         break;
@@ -57,18 +52,15 @@ namespace ConvertZZ.Moudle
                         break;
                 }
                 return true;
-            }
-            catch { return false; }
+            } catch { return false; }
         }
-        private static void SetFirstInGroup(object obj, string key, string str)
-        {
+        private static void SetFirstInGroup(object obj, string key, string str) {
             var p = obj.GetType().GetProperty(key);
             string[] values = (p.GetValue(key) as string[]);
             values[0] = str;
             p.SetValue(obj, values, null);
         }
-        private static void SetUnJoinGroup(object obj, string key, string str)
-        {
+        private static void SetUnJoinGroup(object obj, string key, string str) {
             var p = obj.GetType().GetProperty(key);
             p.SetValue(obj, str.Split(new string[] { "; " }, StringSplitOptions.RemoveEmptyEntries), null);
         }
